@@ -1,0 +1,1106 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Snapshot testing Snapshot testing for DocmostStack 1`] = `
+{
+  "Outputs": {
+    "DocmostFargateServiceLoadBalancerDNS80B611D9": {
+      "Value": {
+        "Fn::GetAtt": [
+          "DocmostFargateServiceLB0692568B",
+          "DNSName",
+        ],
+      },
+    },
+    "DocmostFargateServiceServiceURL0800EC0D": {
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "http://",
+            {
+              "Fn::GetAtt": [
+                "DocmostFargateServiceLB0692568B",
+                "DNSName",
+              ],
+            },
+          ],
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "DocmostClusterC8ED052E": {
+      "Type": "AWS::ECS::Cluster",
+    },
+    "DocmostEfsFileSystem3345E728": {
+      "DeletionPolicy": "Retain",
+      "Properties": {
+        "Encrypted": true,
+        "FileSystemPolicy": {
+          "Statement": [
+            {
+              "Action": "elasticfilesystem:ClientMount",
+              "Condition": {
+                "Bool": {
+                  "elasticfilesystem:AccessedViaMountTarget": "true",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*",
+              },
+            },
+            {
+              "Action": [
+                "elasticfilesystem:ClientWrite",
+                "elasticfilesystem:ClientRootAccess",
+              ],
+              "Condition": {
+                "Bool": {
+                  "elasticfilesystem:AccessedViaMountTarget": "true",
+                },
+              },
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "*",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "FileSystemTags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostEfsFileSystem",
+          },
+        ],
+        "LifecyclePolicies": [
+          {
+            "TransitionToIA": "AFTER_14_DAYS",
+          },
+        ],
+        "PerformanceMode": "generalPurpose",
+        "ThroughputMode": "bursting",
+      },
+      "Type": "AWS::EFS::FileSystem",
+      "UpdateReplacePolicy": "Retain",
+    },
+    "DocmostEfsFileSystemEfsMountTarget1490869AB": {
+      "Properties": {
+        "FileSystemId": {
+          "Ref": "DocmostEfsFileSystem3345E728",
+        },
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "DocmostEfsFileSystemEfsSecurityGroupD0A382F1",
+              "GroupId",
+            ],
+          },
+        ],
+        "SubnetId": {
+          "Ref": "DocmostVpcEcsSubnetSubnet1Subnet43B6A6AD",
+        },
+      },
+      "Type": "AWS::EFS::MountTarget",
+    },
+    "DocmostEfsFileSystemEfsMountTarget24EA15F66": {
+      "Properties": {
+        "FileSystemId": {
+          "Ref": "DocmostEfsFileSystem3345E728",
+        },
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "DocmostEfsFileSystemEfsSecurityGroupD0A382F1",
+              "GroupId",
+            ],
+          },
+        ],
+        "SubnetId": {
+          "Ref": "DocmostVpcEcsSubnetSubnet2SubnetE90D41E8",
+        },
+      },
+      "Type": "AWS::EFS::MountTarget",
+    },
+    "DocmostEfsFileSystemEfsSecurityGroupD0A382F1": {
+      "Properties": {
+        "GroupDescription": "DocmostStack/DocmostEfsFileSystem/EfsSecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostEfsFileSystem",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "DocmostEfsFileSystemEfsSecurityGroupfromDocmostStackDocmostFargateServiceSecurityGroupE582365A20491393CC79": {
+      "Properties": {
+        "Description": "from DocmostStackDocmostFargateServiceSecurityGroupE582365A:2049",
+        "FromPort": 2049,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DocmostEfsFileSystemEfsSecurityGroupD0A382F1",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "DocmostFargateServiceSecurityGroup5717D98C",
+            "GroupId",
+          ],
+        },
+        "ToPort": 2049,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "DocmostFargateService06742F4F": {
+      "DependsOn": [
+        "DocmostFargateServiceLBPublicListenerECSGroup27242247",
+        "DocmostFargateServiceLBPublicListenerBE6057B4",
+        "DocmostTaskDefinitionTaskRoleDefaultPolicy5E2FF77C",
+        "DocmostTaskDefinitionTaskRoleC43A1BB6",
+      ],
+      "Properties": {
+        "Cluster": {
+          "Ref": "DocmostClusterC8ED052E",
+        },
+        "DeploymentConfiguration": {
+          "Alarms": {
+            "AlarmNames": [],
+            "Enable": false,
+            "Rollback": false,
+          },
+          "MaximumPercent": 200,
+          "MinimumHealthyPercent": 50,
+        },
+        "DesiredCount": 2,
+        "EnableECSManagedTags": false,
+        "HealthCheckGracePeriodSeconds": 60,
+        "LaunchType": "FARGATE",
+        "LoadBalancers": [
+          {
+            "ContainerName": "DocmostContainerDefinition",
+            "ContainerPort": 3000,
+            "TargetGroupArn": {
+              "Ref": "DocmostFargateServiceLBPublicListenerECSGroup27242247",
+            },
+          },
+        ],
+        "NetworkConfiguration": {
+          "AwsvpcConfiguration": {
+            "AssignPublicIp": "DISABLED",
+            "SecurityGroups": [
+              {
+                "Fn::GetAtt": [
+                  "DocmostFargateServiceSecurityGroup5717D98C",
+                  "GroupId",
+                ],
+              },
+            ],
+            "Subnets": [
+              {
+                "Ref": "DocmostVpcEcsSubnetSubnet1Subnet43B6A6AD",
+              },
+              {
+                "Ref": "DocmostVpcEcsSubnetSubnet2SubnetE90D41E8",
+              },
+            ],
+          },
+        },
+        "TaskDefinition": {
+          "Ref": "DocmostTaskDefinition10AFA314",
+        },
+      },
+      "Type": "AWS::ECS::Service",
+    },
+    "DocmostFargateServiceLB0692568B": {
+      "DependsOn": [
+        "DocmostVpcAlbSubnetSubnet1DefaultRoute146D1410",
+        "DocmostVpcAlbSubnetSubnet1RouteTableAssociationEF4B7666",
+        "DocmostVpcAlbSubnetSubnet2DefaultRoute603F7D50",
+        "DocmostVpcAlbSubnetSubnet2RouteTableAssociationEF0FA876",
+      ],
+      "Properties": {
+        "LoadBalancerAttributes": [
+          {
+            "Key": "deletion_protection.enabled",
+            "Value": "false",
+          },
+        ],
+        "Scheme": "internet-facing",
+        "SecurityGroups": [
+          {
+            "Fn::GetAtt": [
+              "DocmostFargateServiceLBSecurityGroupFACD4377",
+              "GroupId",
+            ],
+          },
+        ],
+        "Subnets": [
+          {
+            "Ref": "DocmostVpcAlbSubnetSubnet1SubnetB30DEC81",
+          },
+          {
+            "Ref": "DocmostVpcAlbSubnetSubnet2Subnet339B2709",
+          },
+        ],
+        "Type": "application",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+    },
+    "DocmostFargateServiceLBPublicListenerBE6057B4": {
+      "Properties": {
+        "DefaultActions": [
+          {
+            "TargetGroupArn": {
+              "Ref": "DocmostFargateServiceLBPublicListenerECSGroup27242247",
+            },
+            "Type": "forward",
+          },
+        ],
+        "LoadBalancerArn": {
+          "Ref": "DocmostFargateServiceLB0692568B",
+        },
+        "Port": 80,
+        "Protocol": "HTTP",
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::Listener",
+    },
+    "DocmostFargateServiceLBPublicListenerECSGroup27242247": {
+      "Properties": {
+        "Port": 80,
+        "Protocol": "HTTP",
+        "TargetGroupAttributes": [
+          {
+            "Key": "stickiness.enabled",
+            "Value": "false",
+          },
+          {
+            "Key": "deregistration_delay.timeout_seconds",
+            "Value": "30",
+          },
+        ],
+        "TargetType": "ip",
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+    },
+    "DocmostFargateServiceLBSecurityGroupFACD4377": {
+      "Properties": {
+        "GroupDescription": "Automatically created Security Group for ELB DocmostStackDocmostFargateServiceLB8A0683BD",
+        "SecurityGroupIngress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow from anyone on port 80",
+            "FromPort": 80,
+            "IpProtocol": "tcp",
+            "ToPort": 80,
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "DocmostFargateServiceLBSecurityGrouptoDocmostStackDocmostFargateServiceSecurityGroupE582365A3000A25A9227": {
+      "Properties": {
+        "Description": "Load balancer to target",
+        "DestinationSecurityGroupId": {
+          "Fn::GetAtt": [
+            "DocmostFargateServiceSecurityGroup5717D98C",
+            "GroupId",
+          ],
+        },
+        "FromPort": 3000,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DocmostFargateServiceLBSecurityGroupFACD4377",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "ToPort": 3000,
+      },
+      "Type": "AWS::EC2::SecurityGroupEgress",
+    },
+    "DocmostFargateServiceSecurityGroup5717D98C": {
+      "DependsOn": [
+        "DocmostTaskDefinitionTaskRoleDefaultPolicy5E2FF77C",
+        "DocmostTaskDefinitionTaskRoleC43A1BB6",
+      ],
+      "Properties": {
+        "GroupDescription": "DocmostStack/DocmostFargateService/Service/SecurityGroup",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow all outbound traffic by default",
+            "IpProtocol": "-1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "DocmostFargateServiceSecurityGroupfromDocmostStackDocmostFargateServiceLBSecurityGroup6FA5F4FC300082A22933": {
+      "DependsOn": [
+        "DocmostTaskDefinitionTaskRoleDefaultPolicy5E2FF77C",
+        "DocmostTaskDefinitionTaskRoleC43A1BB6",
+      ],
+      "Properties": {
+        "Description": "Load balancer to target",
+        "FromPort": 3000,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "DocmostFargateServiceSecurityGroup5717D98C",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "DocmostFargateServiceLBSecurityGroupFACD4377",
+            "GroupId",
+          ],
+        },
+        "ToPort": 3000,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+    "DocmostTaskDefinition10AFA314": {
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Essential": true,
+            "Image": "docmost/docmost:0.6.2",
+            "MountPoints": [
+              {
+                "ContainerPath": "/app/data/storage",
+                "ReadOnly": false,
+                "SourceVolume": "docmost",
+              },
+            ],
+            "Name": "DocmostContainerDefinition",
+            "PortMappings": [
+              {
+                "ContainerPort": 3000,
+                "Protocol": "tcp",
+              },
+            ],
+          },
+        ],
+        "Cpu": "256",
+        "Family": "DocmostStackDocmostTaskDefinition17C6C121",
+        "Memory": "512",
+        "NetworkMode": "awsvpc",
+        "RequiresCompatibilities": [
+          "FARGATE",
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "DocmostTaskDefinitionTaskRoleC43A1BB6",
+            "Arn",
+          ],
+        },
+        "Volumes": [
+          {
+            "EFSVolumeConfiguration": {
+              "FilesystemId": {
+                "Ref": "DocmostEfsFileSystem3345E728",
+              },
+            },
+            "Name": "docmost",
+          },
+        ],
+      },
+      "Type": "AWS::ECS::TaskDefinition",
+    },
+    "DocmostTaskDefinitionTaskRoleC43A1BB6": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "ecs-tasks.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "DocmostTaskDefinitionTaskRoleDefaultPolicy5E2FF77C": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "elasticfilesystem:ClientMount",
+                "elasticfilesystem:ClientWrite",
+                "elasticfilesystem:ClientRootAccess",
+              ],
+              "Condition": {
+                "Bool": {
+                  "elasticfilesystem:AccessedViaMountTarget": "true",
+                },
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "DocmostEfsFileSystem3345E728",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "DocmostTaskDefinitionTaskRoleDefaultPolicy5E2FF77C",
+        "Roles": [
+          {
+            "Ref": "DocmostTaskDefinitionTaskRoleC43A1BB6",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "DocmostVpcAlbSubnetSubnet1DefaultRoute146D1410": {
+      "DependsOn": [
+        "DocmostVpcVPCGW59CBD5D3",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "DocmostVpcIGWA48E0023",
+        },
+        "RouteTableId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet1RouteTable9FCBD00B",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "DocmostVpcAlbSubnetSubnet1EIP2DEA6605": {
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/AlbSubnetSubnet1",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::EIP",
+    },
+    "DocmostVpcAlbSubnetSubnet1NATGateway9DAA3946": {
+      "DependsOn": [
+        "DocmostVpcAlbSubnetSubnet1DefaultRoute146D1410",
+        "DocmostVpcAlbSubnetSubnet1RouteTableAssociationEF4B7666",
+      ],
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "DocmostVpcAlbSubnetSubnet1EIP2DEA6605",
+            "AllocationId",
+          ],
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet1SubnetB30DEC81",
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/AlbSubnetSubnet1",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::NatGateway",
+    },
+    "DocmostVpcAlbSubnetSubnet1RouteTable9FCBD00B": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/AlbSubnetSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "DocmostVpcAlbSubnetSubnet1RouteTableAssociationEF4B7666": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet1RouteTable9FCBD00B",
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet1SubnetB30DEC81",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "DocmostVpcAlbSubnetSubnet1SubnetB30DEC81": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.0.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "AlbSubnet",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/AlbSubnetSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "DocmostVpcAlbSubnetSubnet2DefaultRoute603F7D50": {
+      "DependsOn": [
+        "DocmostVpcVPCGW59CBD5D3",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "DocmostVpcIGWA48E0023",
+        },
+        "RouteTableId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet2RouteTable59ED0570",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "DocmostVpcAlbSubnetSubnet2RouteTable59ED0570": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/AlbSubnetSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "DocmostVpcAlbSubnetSubnet2RouteTableAssociationEF0FA876": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet2RouteTable59ED0570",
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet2Subnet339B2709",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "DocmostVpcAlbSubnetSubnet2Subnet339B2709": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.1.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "AlbSubnet",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/AlbSubnetSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "DocmostVpcEcsSubnetSubnet1DefaultRoute7D5DCE59": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet1NATGateway9DAA3946",
+        },
+        "RouteTableId": {
+          "Ref": "DocmostVpcEcsSubnetSubnet1RouteTableAF80AE86",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "DocmostVpcEcsSubnetSubnet1RouteTableAF80AE86": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/EcsSubnetSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "DocmostVpcEcsSubnetSubnet1RouteTableAssociation0120407D": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DocmostVpcEcsSubnetSubnet1RouteTableAF80AE86",
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcEcsSubnetSubnet1Subnet43B6A6AD",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "DocmostVpcEcsSubnetSubnet1Subnet43B6A6AD": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.2.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "EcsSubnet",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/EcsSubnetSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "DocmostVpcEcsSubnetSubnet2DefaultRouteF5E72960": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "DocmostVpcAlbSubnetSubnet1NATGateway9DAA3946",
+        },
+        "RouteTableId": {
+          "Ref": "DocmostVpcEcsSubnetSubnet2RouteTable377FEB07",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "DocmostVpcEcsSubnetSubnet2RouteTable377FEB07": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/EcsSubnetSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "DocmostVpcEcsSubnetSubnet2RouteTableAssociation9BE1C628": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DocmostVpcEcsSubnetSubnet2RouteTable377FEB07",
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcEcsSubnetSubnet2SubnetE90D41E8",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "DocmostVpcEcsSubnetSubnet2SubnetE90D41E8": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.3.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "EcsSubnet",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/EcsSubnetSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "DocmostVpcF40508D5": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::VPC",
+    },
+    "DocmostVpcIGWA48E0023": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::InternetGateway",
+    },
+    "DocmostVpcRdsSubnetSubnet1RouteTableAssociationC9665D5F": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DocmostVpcRdsSubnetSubnet1RouteTableCD5CD3E5",
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcRdsSubnetSubnet1SubnetB89F6EAE",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "DocmostVpcRdsSubnetSubnet1RouteTableCD5CD3E5": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/RdsSubnetSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "DocmostVpcRdsSubnetSubnet1SubnetB89F6EAE": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.6.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "RdsSubnet",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated",
+          },
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/RdsSubnetSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "DocmostVpcRdsSubnetSubnet2RouteTable07B4E0B7": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/RdsSubnetSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "DocmostVpcRdsSubnetSubnet2RouteTableAssociation8B71F5CE": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DocmostVpcRdsSubnetSubnet2RouteTable07B4E0B7",
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcRdsSubnetSubnet2SubnetEE9270EC",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "DocmostVpcRdsSubnetSubnet2SubnetEE9270EC": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.7.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "RdsSubnet",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated",
+          },
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/RdsSubnetSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "DocmostVpcRedisSubnetSubnet1RouteTableAssociationDF266B5D": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DocmostVpcRedisSubnetSubnet1RouteTableBB05C0C3",
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcRedisSubnetSubnet1Subnet0ACE1C88",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "DocmostVpcRedisSubnetSubnet1RouteTableBB05C0C3": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/RedisSubnetSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "DocmostVpcRedisSubnetSubnet1Subnet0ACE1C88": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.4.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "RedisSubnet",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated",
+          },
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/RedisSubnetSubnet1",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "DocmostVpcRedisSubnetSubnet2RouteTable52E4E123": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/RedisSubnetSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "DocmostVpcRedisSubnetSubnet2RouteTableAssociationA8C9F8FD": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "DocmostVpcRedisSubnetSubnet2RouteTable52E4E123",
+        },
+        "SubnetId": {
+          "Ref": "DocmostVpcRedisSubnetSubnet2Subnet3F592486",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "DocmostVpcRedisSubnetSubnet2Subnet3F592486": {
+      "Properties": {
+        "AvailabilityZone": {
+          "Fn::Select": [
+            1,
+            {
+              "Fn::GetAZs": "",
+            },
+          ],
+        },
+        "CidrBlock": "10.0.5.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "RedisSubnet",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated",
+          },
+          {
+            "Key": "Name",
+            "Value": "DocmostStack/DocmostVpc/RedisSubnetSubnet2",
+          },
+        ],
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "DocmostVpcVPCGW59CBD5D3": {
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "DocmostVpcIGWA48E0023",
+        },
+        "VpcId": {
+          "Ref": "DocmostVpcF40508D5",
+        },
+      },
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;
