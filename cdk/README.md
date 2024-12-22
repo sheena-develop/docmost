@@ -4,6 +4,12 @@ This is a blank project for CDK development with TypeScript.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
+## 前提条件
+* ドメインが取得済みであること
+* AWS Certificate Manager で証明書を取得済みであること
+* Route53でホストゾーンが作成され、ACMのCNAMEが追加済みであること
+* [Docker Hub におけるダウンロード率制限](https://matsuand.github.io/docs.docker.jp.onthefly/docker-hub/download-rate-limit/)に達していないこと
+
 ## Useful commands
 
 * `npm run build`   compile typescript to js
