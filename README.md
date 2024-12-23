@@ -7,14 +7,19 @@
 
 ### コマンド
 
+### srcについて
+このプロジェクトでは、AWSで使う際に、一部OSSのソースコードを変更する必要があるため、[Docmost](https://github.com/docmost/docmost)をサブモジュールとして追加しています。
+
 ### フォルダ構成
 
 ```bash
 .
 ├── cdk
 │   └── ... # AWS CDK(v2)
-└── local
-    └── ... # ローカル環境(Docker)
+├── local
+│   └── ... # ローカル環境(Docker)
+└── src
+    └── ... # Docmost Repository
 ```
 
 ### プロジェクトの共同作業について
