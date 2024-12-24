@@ -10,6 +10,9 @@ interface RdsProps {
 }
 
 export class Rds extends Construct {
+  public readonly value: rds.DatabaseInstance;
+  public readonly rdsCredentials: rds.Credentials;
+
   constructor(scope: Construct, id: string, props: RdsProps) {
     super(scope, id);
 
@@ -24,12 +27,12 @@ export class Rds extends Construct {
     });
 
     // NOTE: パスワードを自動生成してSecrets Managerに保存
-    const rdsCredentials = rds.Credentials.fromGeneratedSecret("docmost_user", {
+    this.rdsCredentials = rds.Credentials.fromGeneratedSecret("docmost_user", {
       secretName: `/${props.resourceName}/rds/`,
     });
 
     // NOTE: プライマリインスタンスの作成
-    const rdsPrimaryInstance = new rds.DatabaseInstance(this, 'RdsPrimaryInstance', {
+    this.value = new rds.DatabaseInstance(this, 'RdsPrimaryInstance', {
       engine: rds.DatabaseInstanceEngine.postgres({
         version: rds.PostgresEngineVersion.VER_16_6
       }),
@@ -37,7 +40,7 @@ export class Rds extends Construct {
         ec2.InstanceClass.T3,
         ec2.InstanceSize.MICRO
       ),
-      credentials: rdsCredentials,
+      credentials: this.rdsCredentials,
       databaseName: 'docmost',
       vpc: props.vpc,
       vpcSubnets: props.subnets,
@@ -49,7 +52,7 @@ export class Rds extends Construct {
 
     // NOTE: リードレプリカの作成
     new rds.DatabaseInstanceReadReplica(this, 'RdsReadReplica', {
-      sourceDatabaseInstance: rdsPrimaryInstance,
+      sourceDatabaseInstance: this.value,
       instanceType: ec2.InstanceType.of(
         ec2.InstanceClass.T3,
         ec2.InstanceSize.MICRO

@@ -1,4 +1,5 @@
 import { Construct } from 'constructs';
+import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
@@ -6,7 +7,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 interface EcsProps {
   vpc: ec2.Vpc;
   resourceName: string;
-  ecrRepository: string;
+  ecrRepository: ecr.IRepository;
   securityGroup: ec2.SecurityGroup;
   subnets: ec2.SubnetSelection;
   env: {
@@ -34,8 +35,9 @@ export class Ecs extends Construct {
       cpu: 256,
       memoryLimitMiB: 512,
       runtimePlatform: {
-        cpuArchitecture: ecs.CpuArchitecture.ARM64
-      }
+        operatingSystemFamily: ecs.OperatingSystemFamily.LINUX,
+        cpuArchitecture: ecs.CpuArchitecture.X86_64
+      },
     });
 
     const logDriver = new ecs.AwsLogDriver({
@@ -43,7 +45,7 @@ export class Ecs extends Construct {
       logRetention: logs.RetentionDays.ONE_DAY
     });
     taskDefinition.addContainer('EcsContainer', {
-      image: ecs.ContainerImage.fromRegistry(props.ecrRepository),
+      image: ecs.ContainerImage.fromEcrRepository(props.ecrRepository),
       portMappings: [{ containerPort: 3000, hostPort: 3000 }],
       environment: {
         DATABASE_URL: props.env.DATABASE_URL,
@@ -61,7 +63,8 @@ export class Ecs extends Construct {
       desiredCount: 2,
       securityGroups: [props.securityGroup],
       vpcSubnets: props.subnets,
-      taskDefinitionRevision: ecs.TaskDefinitionRevision.LATEST
+      taskDefinitionRevision: ecs.TaskDefinitionRevision.LATEST,
+      enableExecuteCommand: true
     });
   }
 }

@@ -10,6 +10,8 @@ interface RedisProps {
 }
 
 export class Redis extends Construct {
+  public readonly value: elasticache.CfnServerlessCache;
+
   constructor(scope: Construct, id: string, props: RedisProps) {
     super(scope, id);
 
@@ -17,7 +19,7 @@ export class Redis extends Construct {
     const securityGroupId = props.securityGroup.securityGroupId;
 
     // NOTE: Redis の作成
-    new elasticache.CfnServerlessCache(this, 'Redis', {
+    this.value = new elasticache.CfnServerlessCache(this, 'Redis', {
       engine: 'redis',
       serverlessCacheName: `${props.resourceName}-redis`,
       securityGroupIds: [securityGroupId],

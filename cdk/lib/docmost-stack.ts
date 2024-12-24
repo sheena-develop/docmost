@@ -1,6 +1,9 @@
 import type { StackProps } from 'aws-cdk-lib';
 import type { Construct } from 'constructs';
+import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as cdk from 'aws-cdk-lib';
+import { Route53 } from './construct/route53';
+import { Acm } from './construct/acm';
 import { Vpc } from './construct/vpc';
 import { SecurityGroup } from './construct/security-group';
 import { Alb } from './construct/alb';
@@ -10,12 +13,10 @@ import { Ecs } from './construct/ecs';
 import { SecretsManager } from './construct/secrets-manager';
 
 interface DocmostStackProps extends StackProps {
-  dockerImage: string;
   appUrl: string;
   appSecret: string;
-  rdsSecretManagerArn: string | undefined;
-  redisEndpoint: string | undefined;
-  certificateArn: string;
+  domainName: string;
+  rdsCredentialsSecretArn: string;
 }
 
 export class DocmostStack extends cdk.Stack {
@@ -23,6 +24,34 @@ export class DocmostStack extends cdk.Stack {
     super(scope, id, props);
 
     // https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html
+
+    // HostZone
+    const route53 = new Route53(this, 'Route53', {
+      resourceName,
+      domainName: props.domainName
+    });
+
+    const hostedZoneNameServers = route53.value.hostedZoneNameServers;
+    if (!hostedZoneNameServers) {
+      throw new Error('hostedZoneNameServers for does not exist');
+    }
+
+    const nameServerList = cdk.Fn.join(',', hostedZoneNameServers);
+    new cdk.CfnOutput(this, 'NameServerList', { value: nameServerList });
+
+    // SSL Certificate Domain
+    const acm = new Acm(this, 'Certificate', {
+      resourceName,
+      domainName: props.domainName,
+      hostZone: route53.value
+    });
+
+    // ECR
+    const repository = ecr.Repository.fromRepositoryName(
+      this,
+      "EcrRepository",
+      resourceName
+    );
 
     // VPC
     const vpc = new Vpc(this, 'Vpc', resourceName);
@@ -39,7 +68,13 @@ export class DocmostStack extends cdk.Stack {
       resourceName,
       securityGroup: albSecurityGroup,
       subnets: vpc.getAlbPublicSubnets(),
-      certificateArn: props.certificateArn
+      certificateArn: acm.value.certificateArn
+    });
+
+    route53.addARecord('ARecord', {
+      hostZone: route53.value,
+      alb: alb.value,
+      regionName: 'ap-northeast-1'
     });
 
     // Redis
@@ -58,28 +93,23 @@ export class DocmostStack extends cdk.Stack {
       subnets: vpc.getRdsPrivateIsolatedSubnets()
     });
 
-    // 初回、以下コメントアウト
+    // if (!rds.rdsCredentials.secret) {
+    //   throw new Error('rdsCredentialsSecret for does not exist');
+    // }
+
     // /*
-    if (!props.rdsSecretManagerArn) {
-      throw new Error('Failed to get RDS_SECRET_MANAGER_ARN');
-    }
-
-    if (!props.redisEndpoint) {
-      throw new Error('Failed to get REDIS ENDPOINT');
-    }
-
     // Secrets Manager
-    const secretsManager = new SecretsManager(this, 'SecretsManager');
-    const keys: ['username', 'password', 'host', 'port', 'dbname'] = ['username', 'password', 'host', 'port', 'dbname'] as const;
-    const { username, password, host, port, dbname } = secretsManager.getSecretValue(keys, props.rdsSecretManagerArn);
-    const databaseUrl = `postgresql://${username}:${password}@${host}:${port}/${dbname}?schema=public&sslmode=require`;
-    const redisUrl = `redis://${props.redisEndpoint}`;
+    const rdsSecretsManager = new SecretsManager(this, 'RdsSecretsManager');
+    // const { username, password, host, port, dbname } = rdsSecretsManager.getSecretValue(['username', 'password', 'host', 'port', 'dbname'], rds.rdsCredentials.secret.secretArn);
+    const { username, password, host, port, dbname } = rdsSecretsManager.getSecretValue(['username', 'password', 'host', 'port', 'dbname'], props.rdsCredentialsSecretArn);
+    const databaseUrl = `postgresql://${username}:${password}@${host}:${port}/${dbname}?schema=public`;
+    const redisUrl = `redis://${redis.value.attrEndpointAddress}:${redis.value.attrEndpointPort}`;
 
     // ECS(Fargate)
     const ecs = new Ecs(this, 'EcsFargate', {
       vpc: vpc.value,
       resourceName,
-      ecrRepository: props.dockerImage,
+      ecrRepository: repository,
       securityGroup: ecsSecurityGroup,
       env: {
         APP_URL: props.appUrl,
@@ -98,11 +128,6 @@ export class DocmostStack extends cdk.Stack {
         path: '/',
         interval: cdk.Duration.minutes(1)
       }
-    });
-
-    // NOTE: 出力としてロードバランサーのDNS名を出力
-    new cdk.CfnOutput(this, 'LoadBalancerDns', {
-      value: alb.value.loadBalancerDnsName
     });
     // */
   }

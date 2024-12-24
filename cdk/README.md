@@ -8,7 +8,7 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 * ドメインが取得済みであること
 * AWS Certificate Manager で証明書を取得済みであること
 * Route53でホストゾーンが作成され、ACMのCNAMEが追加済みであること
-* [Docker Hub におけるダウンロード率制限](https://matsuand.github.io/docs.docker.jp.onthefly/docker-hub/download-rate-limit/)に達していないこと
+* ECRレジストリにDockerイメージがプッシュ済みであること
 
 ## Useful commands
 
