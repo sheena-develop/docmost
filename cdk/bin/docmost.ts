@@ -12,7 +12,7 @@ const appSecret = process.env.APP_SECRET;
 const domainName = process.env.DOMAIN_NAME;
 const rdsCredentialsSecretArn = process.env.RDS_CREDENTIALS_SECRET_ARN;
 
-if (!accountId || !region || !appUrl || !appSecret || !domainName || !rdsCredentialsSecretArn) {
+if (!accountId || !region || !appUrl || !appSecret || !domainName) {
   throw new Error('Environmental variables are not set properly');
 }
 

@@ -51,18 +51,18 @@ export class Rds extends Construct {
     });
 
     // NOTE: リードレプリカの作成
-    new rds.DatabaseInstanceReadReplica(this, 'RdsReadReplica', {
-      sourceDatabaseInstance: this.value,
-      instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.T3,
-        ec2.InstanceSize.MICRO
-      ),
-      vpc: props.vpc,
-      vpcSubnets: props.subnets,
-      networkType: rds.NetworkType.IPV4,
-      securityGroups: [props.securityGroup],
-      availabilityZone: 'ap-northeast-1c',
-      parameterGroup: paramGroup
-    });
+    // new rds.DatabaseInstanceReadReplica(this, 'RdsReadReplica', {
+    //   sourceDatabaseInstance: this.value,
+    //   instanceType: ec2.InstanceType.of(
+    //     ec2.InstanceClass.T3,
+    //     ec2.InstanceSize.MICRO
+    //   ),
+    //   vpc: props.vpc,
+    //   vpcSubnets: props.subnets,
+    //   networkType: rds.NetworkType.IPV4,
+    //   securityGroups: [props.securityGroup],
+    //   availabilityZone: 'ap-northeast-1c',
+    //   parameterGroup: paramGroup
+    // });
   }
 }
