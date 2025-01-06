@@ -11,7 +11,6 @@ interface RdsProps {
 
 export class Rds extends Construct {
   public readonly value: rds.DatabaseInstance;
-  public readonly rdsCredentials: rds.Credentials;
 
   constructor(scope: Construct, id: string, props: RdsProps) {
     super(scope, id);
@@ -27,7 +26,7 @@ export class Rds extends Construct {
     });
 
     // NOTE: パスワードを自動生成してSecrets Managerに保存
-    this.rdsCredentials = rds.Credentials.fromGeneratedSecret("docmost_user", {
+    const rdsCredentials = rds.Credentials.fromGeneratedSecret("docmost_user", {
       secretName: `/${props.resourceName}/rds/`,
     });
 
@@ -40,7 +39,7 @@ export class Rds extends Construct {
         ec2.InstanceClass.T3,
         ec2.InstanceSize.MICRO
       ),
-      credentials: this.rdsCredentials,
+      credentials: rdsCredentials,
       databaseName: 'docmost',
       vpc: props.vpc,
       vpcSubnets: props.subnets,
