@@ -17,6 +17,15 @@ interface DocmostStackProps extends cdk.StackProps {
   domainName: string;
   appUrl: string;
   appSecret: string;
+  mailDriver: string;
+  mailFromAddress: string;
+  mailFromName: string;
+  smtpHost: string;
+  smtpPort: string;
+  smtpUserName: string;
+  smtpPassword: string;
+  smtpSecure: string;
+  smtpIgnoretls: string;
 }
 
 export class DocmostStack extends cdk.Stack {
@@ -99,7 +108,16 @@ export class DocmostStack extends cdk.Stack {
         APP_URL: props.appUrl,
         APP_SECRET: props.appSecret,
         DATABASE_URL: databaseUrl,
-        REDIS_URL: redisUrl
+        REDIS_URL: redisUrl,
+        MAIL_DRIVER: props.mailDriver,
+        MAIL_FROM_ADDRESS: props.mailFromAddress,
+        MAIL_FROM_NAME: props.mailFromName,
+        SMTP_HOST: props.smtpHost,
+        SMTP_PORT: props.smtpPort,
+        SMTP_USERNAME: props.smtpUserName,
+        SMTP_PASSWORD: props.smtpPassword,
+        SMTP_SECURE: props.smtpSecure,
+        SMTP_IGNORETLS: props.smtpIgnoretls
       },
       subnets: vpc.getEcsPrivateWithEgressSubnets()
     });

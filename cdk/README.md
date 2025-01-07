@@ -38,3 +38,19 @@ cp .env.example .env
 * `npx cdk diff`    差分の確認
 * `npx cdk synth`   CFnの生成
 * `npx cdk destroy` スタックの削除
+* タスク一覧の取得
+  * ※--profile XXX プロファイルを設定している場合のみ
+```bash
+aws ecs list-tasks --cluster docmost-cluster --profile XXX
+```
+* コンテナの中に入る
+  * ※--profile XXX プロファイルを設定している場合のみ
+```bash
+aws ecs execute-command \
+    --cluster docmost-cluster \
+    --task <Task ARN> \
+    --container EcsContainer \
+    --interactive \
+    --command "/bin/sh" \
+    --profile XXX
+```

@@ -14,7 +14,16 @@ interface EcsProps {
     APP_URL: string,
     APP_SECRET: string,
     DATABASE_URL: string,
-    REDIS_URL: string
+    REDIS_URL: string,
+    MAIL_DRIVER: string,
+    MAIL_FROM_ADDRESS: string,
+    MAIL_FROM_NAME: string,
+    SMTP_HOST: string,
+    SMTP_PORT: string,
+    SMTP_USERNAME: string,
+    SMTP_PASSWORD: string,
+    SMTP_SECURE: string,
+    SMTP_IGNORETLS: string
   };
 }
 
@@ -51,7 +60,16 @@ export class Ecs extends Construct {
         DATABASE_URL: props.env.DATABASE_URL,
         APP_URL: props.env.APP_URL,
         APP_SECRET: props.env.APP_SECRET,
-        REDIS_URL: props.env.REDIS_URL
+        REDIS_URL: props.env.REDIS_URL,
+        MAIL_DRIVER: props.env.MAIL_DRIVER,
+        MAIL_FROM_ADDRESS: props.env.MAIL_FROM_ADDRESS,
+        MAIL_FROM_NAME: props.env.MAIL_FROM_NAME,
+        SMTP_HOST: props.env.SMTP_HOST,
+        SMTP_PORT: props.env.SMTP_PORT,
+        SMTP_USERNAME: props.env.SMTP_USERNAME,
+        SMTP_PASSWORD: props.env.SMTP_PASSWORD,
+        SMTP_SECURE: props.env.SMTP_SECURE,
+        SMTP_IGNORETLS: props.env.SMTP_IGNORETLS
       },
       logging: logDriver
     });
