@@ -1,3 +1,0 @@
-[submodule "cdk/src"]
-	path = cdk/src
-	url = https://github.com/docmost/docmost.git
