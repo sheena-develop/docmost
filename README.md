@@ -3,23 +3,12 @@
 ## 概要
 このプロジェクトは、AWS CDK を使って Docmost を構築するためのソースコードです。
 
-### 環境構築
-
-### コマンド
-
-### srcについて
-このプロジェクトでは、AWSで使う際に、一部OSSのソースコードを変更する必要があるため、[Docmost](https://github.com/docmost/docmost)を追加しています。
-
 ### フォルダ構成
 
-```bash
+```sh
 .
-├── cdk
-│   ├── ... # AWS CDK(v2)
-│   └── src # Docmost Repository
-└── local
-    └── ... # ローカル環境(Docker)
-
+└── cdk
+    └── ... # AWS CDK(v2)
 ```
 
 ### プロジェクトの共同作業について
